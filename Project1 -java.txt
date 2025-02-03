@@ -1,0 +1,185 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+// Interface defining store operations
+interface StoreOperations {
+    void addProduct(Product product);
+    void buyProduct(int productId, int quantity);
+    void viewCart();
+    void checkout();
+}
+
+// Abstract class representing a product
+abstract class Product {
+    protected int productID;
+    protected String name;
+    protected String details;
+    protected double price;
+    protected int stock;
+
+    public Product(int productID, String name, String details, double price, int stock) {
+        this.productID = productID;
+        this.name = name;
+        this.details = details;
+        this.price = price;
+        this.stock = stock;
+    }
+
+    public int getProductID() { return productID; }
+    public String getName() { return name; }
+    public String getDetails() { return details; }
+    public double getPrice() { return price; }
+    public int getStock() { return stock; }
+    
+    public void reduceStock(int quantity) {
+        if (stock >= quantity) {
+            stock -= quantity;
+        }
+    }
+
+    public void increaseStock(int quantity) {
+        stock += quantity;
+    }
+
+    public abstract void displayInfo();
+}
+
+// Concrete class representing an online store
+class OnlineStore implements StoreOperations {
+    private List<Product> inventory;
+    private List<Product> cart;
+    private List<Integer> cartQuantities;
+
+    public OnlineStore() {
+        inventory = new ArrayList<>();
+        cart = new ArrayList<>();
+        cartQuantities = new ArrayList<>();
+    }
+
+    @Override
+    public void addProduct(Product product) {
+        inventory.add(product);
+    }
+
+    @Override
+    public void buyProduct(int productId, int quantity) {
+        for (Product product : inventory) {
+            if (product.getProductID() == productId && product.getStock() >= quantity) {
+                cart.add(product);
+                cartQuantities.add(quantity);
+                product.reduceStock(quantity);
+                System.out.println(quantity + " " + product.getName() + "(s) added to cart.");
+                return;
+            }
+        }
+        System.out.println("Product not found or insufficient stock.");
+    }
+
+    @Override
+    public void viewCart() {
+        if (cart.isEmpty()) {
+            System.out.println("Your cart is empty.");
+            return;
+        }
+        System.out.println("\nCart Items:");
+        for (int i = 0; i < cart.size(); i++) {
+            Product product = cart.get(i);
+            int quantity = cartQuantities.get(i);
+            System.out.println(product.getName() + " (x" + quantity + ") - $" + (product.getPrice() * quantity));
+        }
+    }
+
+    @Override
+    public void checkout() {
+        if (cart.isEmpty()) {
+            System.out.println("Your cart is empty. Add items before checkout.");
+            return;
+        }
+        double total = 0;
+        System.out.println("\nCheckout Summary:");
+        for (int i = 0; i < cart.size(); i++) {
+            Product product = cart.get(i);
+            int quantity = cartQuantities.get(i);
+            double cost = product.getPrice() * quantity;
+            total += cost;
+            System.out.println(product.getName() + " (x" + quantity + ") - $" + cost);
+        }
+        System.out.println("Total Amount: $" + total);
+        System.out.println("Thank you for shopping!");
+        cart.clear();
+        cartQuantities.clear();
+    }
+
+    public void displayProducts() {
+        if (inventory.isEmpty()) {
+            System.out.println("No products available.");
+            return;
+        }
+        System.out.println("\nAvailable Products:");
+        for (Product product : inventory) {
+            product.displayInfo();
+        }
+    }
+}
+
+// Concrete product class
+class Electronics extends Product {
+    public Electronics(int productID, String name, String details, double price, int stock) {
+        super(productID, name, details, price, stock);
+    }
+
+    @Override
+    public void displayInfo() {
+        System.out.println("[" + productID + "] " + name + " - " + details + " - $" + price + " (Stock: " + stock + ")");
+    }
+}
+
+// Main class for user interaction
+public class OnlineStoreApp {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        OnlineStore store = new OnlineStore();
+
+        // Adding sample products
+        store.addProduct(new Electronics(1, "Laptop", "Dell Inspiron 15", 799.99, 10));
+        store.addProduct(new Electronics(2, "Smartphone", "Samsung Galaxy S22", 999.99, 5));
+        store.addProduct(new Electronics(3, "Headphones", "Sony WH-1000XM4", 349.99, 15));
+
+        while (true) {
+            System.out.println("\n--- Online Store ---");
+            System.out.println("1. View Products");
+            System.out.println("2. Buy Product");
+            System.out.println("3. View Cart");
+            System.out.println("4. Checkout");
+            System.out.println("5. Exit");
+            System.out.print("Choose an option: ");
+
+            int choice = scanner.nextInt();
+            switch (choice) {
+                case 1:
+                    store.displayProducts();
+                    break;
+                case 2:
+                    System.out.print("Enter Product ID to buy: ");
+                    int productId = scanner.nextInt();
+                    System.out.print("Enter quantity: ");
+                    int quantity = scanner.nextInt();
+                    store.buyProduct(productId, quantity);
+                    break;
+                case 3:
+                    store.viewCart();
+                    break;
+                case 4:
+                    store.checkout();
+                    break;
+                case 5:
+                    System.out.println("Thank you for visiting!");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice! Try again.");
+            }
+        }
+    }
+}    
