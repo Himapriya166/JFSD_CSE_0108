@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        select, input, button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Currency Converter</h1>
+    <label for="baseCurrency">Base Currency:</label>
+    <select id="baseCurrency"></select>
+    
+    <label for="targetCurrency">Target Currency:</label>
+    <select id="targetCurrency"></select>
+    
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount" placeholder="Enter amount" />
+    
+    <button onclick="convertCurrency()">Convert</button>
+    
+    <h2 id="result"></h2>
+    
+    <script>
+        const exchangeRates = {
+            "USD": 1.0, "INR": 83.10, "EUR": 0.91, "GBP": 0.78, "JPY": 150.25,
+            "CAD": 1.35, "AUD": 1.50, "CNY": 7.10, "SGD": 1.36, "AED": 3.67,
+            "MXN": 18.90, "BRL": 5.08, "RUB": 91.00, "ZAR": 18.40, "VND": 24500.00
+        };
+        
+        const baseCurrencySelect = document.getElementById("baseCurrency");
+        const targetCurrencySelect = document.getElementById("targetCurrency");
+        
+        Object.keys(exchangeRates).forEach(currency => {
+            let option1 = new Option(currency, currency);
+            let option2 = new Option(currency, currency);
+            baseCurrencySelect.add(option1);
+            targetCurrencySelect.add(option2);
+        });
+        
+        function convertCurrency() {
+            const baseCurrency = baseCurrencySelect.value;
+            const targetCurrency = targetCurrencySelect.value;
+            const amount = parseFloat(document.getElementById("amount").value);
+            
+            if (isNaN(amount) || amount <= 0) {
+                document.getElementById("result").innerText = "Please enter a valid amount";
+                return;
+            }
+            
+            const result = (amount / exchangeRates[baseCurrency]) * exchangeRates[targetCurrency];
+            document.getElementById("result").innerText = `${amount} ${baseCurrency} → ${result.toFixed(2)} ${targetCurrency}`;
+        }
+    </script>
+</body>
+</html>
